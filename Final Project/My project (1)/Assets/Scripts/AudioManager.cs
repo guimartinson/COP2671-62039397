@@ -11,7 +11,7 @@ public class AudioManager : MonoBehaviour
     {
         audioSource = GetComponent<AudioSource>();
         audioSource.clip = backgroundMusic;
-        audioSource.loop = true;
+        
         audioSource.Play();
     }
 }
