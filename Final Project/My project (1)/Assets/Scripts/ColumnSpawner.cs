@@ -11,15 +11,25 @@ public class ColumnSpawner : MonoBehaviour
     public Transform leftSpawnPoint;        
     public Transform rightSpawnPoint;       
 
-    private bool spawnOnLeft = true;        
+    private bool spawnOnLeft = true;      
+
+    
 
     private void Start()
     {
-        StartCoroutine(SpawnColumns());     
+        StartCoroutine(DelayedStartSpawning());     
     }
+
+    IEnumerator DelayedStartSpawning()
+{
+    yield return new WaitForSeconds(2f); // Wait for 2 seconds after the game starts
+    
+    StartCoroutine(SpawnColumns()); // Start spawning columns
+}
 
     IEnumerator SpawnColumns()
     {
+    
         while (true)
         {
             if (spawnOnLeft)

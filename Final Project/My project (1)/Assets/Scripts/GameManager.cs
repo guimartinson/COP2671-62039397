@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -17,14 +16,78 @@ public class GameManager : MonoBehaviour
     private bool isPlayerDead = false;
     public TextMeshProUGUI timerText; // Reference to the UI Text component for displaying the timer
 
+    public ParticleSystem outOfBoundsParticles;
+
+    public Canvas canvas; // Reference to the Canvas object that holds the UI elements
+
+    // UI Buttons
+    public GameObject playButton; // Play button reference
+    public GameObject restartButton; // Restart button reference
+
+    public GameObject MenuBackground;
+
+    public GameObject TitleText;
+
+    // Game state
+    private bool isGameRunning = false; // Track if the game has started
+
+    // AudioManager
+    public AudioSource audioManager; // Reference to the AudioManager's AudioSource
+
+    public Button muteButton; // Reference to the mute button
+    public TextMeshProUGUI muteButtonText; // Reference to the button's text
+    private bool isSoundMuted = false;
+
     void Start()
+{
+    currentTime = timerDuration; // Initialize the timer
+    SetGravityDirection(); // Set initial gravity direction to left
+
+    // Initial setup: Pause the game and show the Play button
+    Time.timeScale = 0; // Freeze game
+    playButton.SetActive(true); // Show Play button
+    restartButton.SetActive(false); // Hide Restart button
+    MenuBackground.SetActive(true); // Show the menu background
+    timerText.gameObject.SetActive(false); // Hide timer initially
+    audioManager.Stop(); // Ensure the background music is off
+    TitleText.SetActive(true); // Hide Title Text
+
+     // Set initial text based on the sound state
+        UpdateMuteButtonText();
+        
+        // Add a listener to the mute button
+        muteButton.onClick.AddListener(ToggleSound);
+
+}
+
+// Toggle sound mute/unmute
+    public void ToggleSound()
     {
-        currentTime = timerDuration; // Initialize the timer
-        SetGravityDirection(); // Set initial gravity direction to left
+        isSoundMuted = !isSoundMuted; // Toggle the mute state
+
+        // Mute or unmute the audio
+        audioManager.mute = isSoundMuted;
+
+        // Update the button text
+        UpdateMuteButtonText();
+    }
+
+    private void UpdateMuteButtonText()
+    {
+        if (isSoundMuted)
+        {
+            muteButtonText.text = "Sound OFF";
+        }
+        else
+        {
+            muteButtonText.text = "Sound ON";
+        }
     }
 
     void Update()
     {
+        if (!isGameRunning) return; // If the game isn't running, skip updates
+
         HandleGravitySwitch();
         CheckPlayerBounds(); // Check if player is out of bounds
         UpdateTimer(); // Update the timer every frame
@@ -72,7 +135,7 @@ public class GameManager : MonoBehaviour
             currentTime -= Time.deltaTime; // Decrease time
 
             // Update the timer text on screen
-            timerText.text = "Time: " + Mathf.Ceil(currentTime).ToString();
+            timerText.text = "Timer: " + Mathf.Ceil(currentTime).ToString();
 
             if (currentTime <= 0)
             {
@@ -83,16 +146,109 @@ public class GameManager : MonoBehaviour
     }
 
     // Call this function to handle player death
-    void PlayerDied()
+   void PlayerDied()
+{
+    isPlayerDead = true; // Mark the player as dead
+    isGameRunning = false; // Stop game updates
+
+    // Play particle effects
+    if (outOfBoundsParticles)
     {
-        isPlayerDead = true; // Stop the timer by setting isPlayerDead to true
-        Debug.Log("Player died!"); // Optional: Log player death for debugging
+        ParticleSystem particles = Instantiate(outOfBoundsParticles, player.transform.position, Quaternion.identity);
+        particles.Play();
+        Destroy(particles.gameObject, particles.main.duration); // Destroy after the effect finishes
     }
+
+    Debug.Log("Player died!"); // Optional: Log player death for debugging
+
+    // Start a coroutine to delay the game freeze and restart button
+    StartCoroutine(HandleDeathSequence(3f)); // 3-second delay before freezing and showing restart button
+}
+
+IEnumerator HandleDeathSequence(float delay)
+{
+    yield return new WaitForSeconds(delay); // Wait for the specified delay
+
+    // Freeze the game and show the restart button
+    Time.timeScale = 0; // Pause the game
+    restartButton.SetActive(true); // Show Restart button
+    MenuBackground.SetActive(true);
+    
+}
+
 
     // Call this function to trigger win condition
     void WinGame()
     {
+        Time.timeScale = 0; // Pause the game
+        isGameRunning = false; // Stop game updates
+        restartButton.SetActive(true); // Show Restart button
+        MenuBackground.SetActive(true);
         Debug.Log("You Win!");
-        // Optional: Add code here for a win screen or to end the game.
     }
+
+    // Called when the Play button is pressed
+    public void StartGame()
+{
+    Time.timeScale = 1; // Resume the game
+    isGameRunning = true; // Start game updates
+    playButton.SetActive(false); // Hide Play button
+    TitleText.SetActive(false); // Hide Title Text
+    timerText.gameObject.SetActive(true); // Make sure the timer is visible
+    audioManager.Play(); // Start background music
+
+    MenuBackground.SetActive(false); // Show the menu background
+
+    StartCoroutine(StartGameAfterDelay(2f)); // Delay game start by 2 seconds
+    StartCoroutine(FadeInMusic(2f)); // Fade in music over 2 seconds
+}
+
+IEnumerator StartGameAfterDelay(float delay)
+{
+    yield return new WaitForSeconds(delay); // Wait for the specified delay
+    Time.timeScale = 1; // Resume the game
+    isGameRunning = true; // Start game updates
+}
+
+    // Called when the Restart button is pressed
+    public void RestartGame()
+    {
+        Time.timeScale = 1; // Resume the game
+        isGameRunning = true; // Start game updates
+        restartButton.SetActive(false); // Hide Restart button
+        MenuBackground.SetActive(false);
+        isPlayerDead = false; // Reset player status
+        currentTime = timerDuration; // Reset the timer
+        player.transform.position = Vector3.zero; // Reset player position
+        SetGravityDirection(); // Reset gravity direction
+        audioManager.Play(); // Restart background music
+        Debug.Log("Game Restart!");
+    }
+
+    IEnumerator FadeOutMusic(float duration)
+{
+    float startVolume = audioManager.volume;
+
+    while (audioManager.volume > 0)
+    {
+        audioManager.volume -= startVolume * Time.deltaTime / duration;
+        yield return null;
+    }
+
+    audioManager.Stop(); // Stop the audio completely
+    audioManager.volume = startVolume; // Reset the volume for future use
+}
+
+IEnumerator FadeInMusic(float duration)
+{
+    audioManager.volume = 0f; // Start at volume 0
+    audioManager.Play(); // Start playing the music
+
+    while (audioManager.volume < 0.2f)
+    {
+        audioManager.volume += Time.deltaTime / duration;
+        yield return null;
+    }
+}
+
 }

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 9018797940202527747}
   m_Layer: 0
   m_Name: VHL
-  m_TagString: Untagged
+  m_TagString: Column
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -46,7 +46,7 @@ GameObject:
   - component: {fileID: 7570571108682551327}
   m_Layer: 0
   m_Name: VeryHard_L
-  m_TagString: Untagged
+  m_TagString: Column
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

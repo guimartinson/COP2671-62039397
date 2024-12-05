@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3746722899132570242}
   m_Layer: 0
   m_Name: HL
-  m_TagString: Untagged
+  m_TagString: Column
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -46,7 +46,7 @@ GameObject:
   - component: {fileID: 7079280940090865722}
   m_Layer: 0
   m_Name: Hard_L
-  m_TagString: Untagged
+  m_TagString: Column
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0

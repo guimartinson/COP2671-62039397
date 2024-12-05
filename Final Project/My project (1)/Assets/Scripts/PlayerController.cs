@@ -47,5 +47,7 @@ public class PlayerController : MonoBehaviour
         {
             isJumping = false; // Allow jumping again after landing
         }
+        
+        
     }
 }

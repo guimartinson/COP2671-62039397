@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 8678812026004420655}
   m_Layer: 0
   m_Name: Hard_R
-  m_TagString: Untagged
+  m_TagString: Column
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -169,7 +169,7 @@ GameObject:
   - component: {fileID: 6454375922633113093}
   m_Layer: 0
   m_Name: HR
-  m_TagString: Untagged
+  m_TagString: Column
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
